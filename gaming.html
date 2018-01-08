@@ -1,0 +1,133 @@
+<html>
+
+<canvas id="MyCanvas" width="800" height="600"></canvas>
+<script>
+var BallX=5;
+var BallY=50;
+var speedX = 10;
+var speedY = 4;
+window.onload = function(){
+var canvas = document.getElementById("MyCanvas");
+var canvasContext = canvas.getContext("2d");
+var framesPerSecond = 30;
+var Paddle1Y = 250;
+var Paddle2Y = 250;
+const PADDLE_HEIGHT = 100;
+const win = 3;
+var winScreen = false;
+var Player1score = 0;
+var Player2score = 0;
+
+setInterval(function(){moveEverything();drawEverything();},1000/framesPerSecond);
+function handleMouseClick(evt){
+	if(winScreen){
+		Player2score=0;
+		Player1score=0;
+		winScreen=false;
+	}
+}
+canvas.addEventListener('mousedown',handleMouseClick);
+canvas.addEventListener('mousemove',function(evt){mousePos=calculateMousePos(evt);
+Paddle1Y=mousePos.y - (PADDLE_HEIGHT/2)});
+function ballReset(){
+	if(Player1score>= win){
+		winScreen = true;
+	}
+	if(Player2score>= win){
+		winScreen = true;
+	}
+	speedX=-speedX;
+	BallX=canvas.width/2;
+	BallY=canvas.height/2;
+}
+function computerMovement(){
+	if (Paddle2Y+(PADDLE_HEIGHT/2)<BallY-35)
+		Paddle2Y+=6;
+	if(Paddle2Y+(PADDLE_HEIGHT/2)>BallY+35)
+		Paddle2Y-=6;
+}
+function moveEverything() {
+	if(winScreen)return;
+	var deltaY;
+	computerMovement();
+ BallX += speedX;
+ BallY += speedY;
+ if(BallX > canvas.width){
+	 if(BallY>Paddle2Y&&BallY<(Paddle2Y+PADDLE_HEIGHT))
+ 	{  speedX=-speedX;
+		deltaY = BallY - Paddle2Y - (PADDLE_HEIGHT/2);
+		speedY = deltaY*0.35;
+	}
+ 	else
+ 	{ Player1score++;
+		ballReset();
+	}
+ }
+
+ if(BallX<0)
+ {
+	 if(BallY>Paddle1Y&&BallY<(Paddle1Y+PADDLE_HEIGHT))
+	 {
+		 speedX=-speedX;
+     deltaY = BallY - Paddle1Y - (PADDLE_HEIGHT/2);
+		 speedY = deltaY*0.35;
+	 }
+	 else
+	 {Player2score++;
+		 ballReset();
+	 }
+
+ }
+ if(BallY > canvas.height||BallY<0){
+	 speedY = -speedY;
+ }
+
+}
+function calculateMousePos(evt) {
+	var rect = canvas.getBoundingClientRect();
+	var root = document.documentElement
+	var mouseX = evt.clientX - rect.left - root.scrollLeft;
+	var mouseY = evt.clientY - rect.top - root.scrollTop;
+	return{
+					x:mouseX,
+					y:mouseY
+	};
+
+}
+function drawNet() {
+	for(var i=4;i<canvas.height;i+=40){
+		canvasContext.fillStyle='white';
+		canvasContext.fillRect(canvas.width/2-1,i,2,20);
+	}
+}
+function drawEverything() {
+	canvasContext.fillStyle = 'black';
+	canvasContext.fillRect(0,0,canvas.width,canvas.height);
+	if(winScreen)
+	{canvasContext.fillStyle = 'white';
+
+	if(Player1score>=win)
+	{canvasContext.fillText('Left Player Won!',350,200);}
+	else if(Player2score>=win)
+	{canvasContext.fillText('Right Player Won!',350,200);}
+	canvasContext.fillText('click to continue',350,500);
+return;
+}
+  drawNet();
+	canvasContext.fillStyle='white';
+	canvasContext.beginPath();
+	canvasContext.arc(BallX,BallY,10,0,Math.PI*2,true);
+	canvasContext.fill();
+
+	//canvasContext.fillStyle='white';
+	canvasContext.fillRect(0,Paddle1Y,10,100);
+	canvasContext.fillRect(canvas.width-10,Paddle2Y,10,100);
+	canvasContext.fillText(Player1score,100,100);
+	canvasContext.fillText(Player2score,canvas.width-100,100);
+
+
+}
+}
+
+</script>
+</html>
